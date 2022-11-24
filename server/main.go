@@ -28,7 +28,7 @@ func init() {
 	tpl = template.Must(template.ParseGlob("templates/*"))
 
 	// creating admin user (this should not be the way to do it on a live system)
-	mapUsers["admin"] = User{convertToHash("admin"), convertToHash("password"), "admin", "admin", "admin"}
+	mapUsers["admin"] = User{convertToHash("Admin"), convertToHash("Password"), "admin", "admin", "admin"} // do not do this. use json file outside of module instead
 }
 
 func main() {
@@ -47,6 +47,8 @@ func index(res http.ResponseWriter, req *http.Request) {
 func login(res http.ResponseWriter, req *http.Request) {
 	if alreadyLoggedIn(req) {
 		// redirect and return
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
 	}
 
 	// process form submission
@@ -81,4 +83,70 @@ func login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	tpl.ExecuteTemplate(res, "login.gohtml", nil)
+}
+
+func signup(res http.ResponseWriter, req *http.Request) {
+	if alreadyLoggedIn(req) {
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
+	}
+
+	var myUser User
+	// process form submission
+	if req.Method == http.MethodPost {
+		username := req.FormValue("username")
+		password := req.FormValue("password")
+		firstname := req.FormValue("firstname")
+		lastname := req.FormValue("lastname")
+
+		if username != "" {
+			// check if username exists/is taken
+			// if exist/taken, return error and exit
+			if _, ok := mapUsers[username]; ok {
+				http.Error(res, "Username already taken", http.StatusForbidden)
+				return
+			}
+
+			// else, create session and user
+			id := uuid.NewV4()
+			myCookie := &http.Cookie{
+				Name:  "myCookie",
+				Value: id.String(),
+			}
+			http.SetCookie(res, myCookie)
+			mapSessions[myCookie.Value] = username
+
+			// encrypt the username & password then store user
+
+			bUsername := convertToHash(username) // ignored potential error
+			bPassword := convertToHash(password) // ignored potential error
+
+			myUser = User{bUsername, bPassword, firstname, lastname, "patient"}
+			mapUsers[username] = myUser
+		}
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
+	}
+	tpl.ExecuteTemplate(res, "signup.gohtml", myUser)
+}
+
+func logout(res http.ResponseWriter, req *http.Request) {
+	if !alreadyLoggedIn(req) {
+		http.Redirect(res, req, "/", http.StatusSeeOther) // redirect to login page
+	}
+
+	myCookie, _ := req.Cookie("myCookie")
+
+	// delete the session
+	delete(mapSessions, myCookie.Value)
+
+	// remove the cookie
+	myCookie = &http.Cookie{
+		Name:   "myCookie",
+		Value:  "",
+		MaxAge: -1,
+	}
+	http.SetCookie(res, myCookie)
+
+	http.Redirect(res, req, "/", http.StatusSeeOther)
 }

@@ -10,6 +10,7 @@ import (
 // helpers
 func convertToHash(object string) []byte {
 	hashedValue, _ := bcrypt.GenerateFromPassword([]byte(object), bcrypt.MinCost)
+
 	return hashedValue
 }
 
