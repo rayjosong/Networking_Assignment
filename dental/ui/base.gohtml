@@ -4,22 +4,29 @@
   <head>
     <meta charset="utf-8" />
     <title>{{template "title" .}} - Dental Booking</title>
-    <!-- Link to the CSS stylesheet and favicon -->
-    <!-- Also some link to some fonts based by google -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700"
-    />
+    <link rel="stylesheet" href="static/css/main.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    {{/* <link rel="stylesheet" href="css/tailwind.css"/> */}}
+
+    <!-- INSERT FAVICON -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
   </head>
   <body>
-    <header>
-      <h1><a href="/">Dental Appointment</a></h1>
-    </header>
-    {{/* {{template "nav" .}} */}}
-    <main>{{template "main" .}}</main>
-    <footer>
-      Powered by <a href="https://golang.org/">Go</a> in
-    </footer>
+      <header>
+      {{template "navbar" .}}
+      </header>
+      {{/* <h1><a href="/">Dental Appointment</a></h1> */}}
+      <main>
+        <div class="p-4 bg-flowhite full-vh">
+          {{template "main" .}}
+        </div>
+      </main>
+      <footer class="bg-flowhite footer bg-onyx d-flex align-content-center justify-content-center ">
+        <span class="color-flowhite m-3">Powered by <a href="https://golang.org/">Go</a> in</span>
+      </footer>
   </body>
 </html>
 {{end}}

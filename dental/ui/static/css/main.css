@@ -1,0 +1,71 @@
+:root {
+  --cgblue: #227C9D;
+  --tiffblue: #17C3B2;
+  --flowhite: #FEF9EF;
+  --maxyellow: #FFCB77;
+  --coral: #FE6D73;
+  --onyx: #353935;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
+  font-family: 'Nerko One', cursive;
+}
+
+
+.full-vh {
+  height: 100vh;
+}
+
+.sm-vh {
+  height: 3rem;
+}
+
+/*
+  CG Blue: #227C9D
+  Tiffany Blue: #17C3B2
+  Maximum Yellow Red: #FFCB77
+  Floral White: #FEF9EF
+  Light Coral: #FE6D73
+*/
+
+::placeholder {
+  padding-left: 0.8rem;
+}
+
+.color-flowhite {
+  color: var(--flowhite);
+}
+
+a:link{
+  color: var(--cgblue);
+}
+
+a:visited {
+  color: var(--coral);
+}
+
+
+.bg-yellow {
+  background-color: var(--maxyellow);
+  /* background-color: #FFCB77; */
+}
+
+.bg-flowhite {
+  background: var(--flowhite);
+}
+
+.bg-onyx {
+  background: var(--onyx);
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}

@@ -1,13 +1,20 @@
 {{define "title"}}Homepage{{end}}
 {{define "main"}}
-    <h1>Welcome, {{.FirstName}}!</h1>
+    {{if .Username}}
+      <h1>Welcome, {{.FirstName}}!</h1>
+    {{else}}
+      <h1>Welcome. It's time to get your teeth in shape.</h1>
+    {{end}}
+
     {{if .Username}}
 
-    <h2><a href="/restricted">Restricted Area (customise later)</a></h2>
-    <h2><a href="/logout">Log Out</a></h2>
+    <h3><a href="/restricted">Restricted Area (customise later)</a></h3>
+    <h3><a href="/logout">Log Out</a></h3>
     {{else}}
-    <h2>You are currently not logged in. Please log in or sign up.</h2>
-    <a href="/signup">Sign Up</a>
-    <a href="/login">Log In</a>
+    <h3>You are currently not logged in. Please log in or sign up.</h3>
+    <div>
+      <span><a href="/signup">Sign Up</a></span>
+      <span class="mx-2"><a href="/login">Log In</a></span>
+    </div>
     {{end}}
 {{end}}

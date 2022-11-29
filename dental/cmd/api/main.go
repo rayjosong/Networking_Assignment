@@ -29,6 +29,7 @@ type application struct {
 
 var mapSessions = map[string]string{}
 
+// TODO: REMOVE THIS IF NOT NEEDED
 func init() {
 	// tpl = template.Must(template.ParseGlob("../../../frontend/web/templates/*"))
 

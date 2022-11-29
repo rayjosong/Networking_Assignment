@@ -15,6 +15,7 @@ func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) 
 	files := []string{
 		"../../ui/base.gohtml",
 		"../../ui/page/home.gohtml",
+		"../../ui/partials/navbar.gohtml",
 	}
 
 	tpl, err := template.ParseFiles(files...)
@@ -68,6 +69,7 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 	files := []string{
 		"../../ui/base.gohtml",
 		"../../ui/page/login.gohtml",
+		"../../ui/partials/navbar.gohtml",
 	}
 
 	tpl, err := template.ParseFiles(files...)
