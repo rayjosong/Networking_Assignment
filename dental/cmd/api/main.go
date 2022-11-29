@@ -46,15 +46,15 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		users: models.UserModel{DB: db},
+		users: &models.UserModel{DB: db},
 	}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", app.homeHandler)
-	// r.HandleFunc("/login", app.loginHandler)
-	// r.HandleFunc("/signup", app.signupHandler)
-	// r.HandleFunc("/logout", app.logoutHandler)
+	r.HandleFunc("/login", app.loginHandler)
+	r.HandleFunc("/signup", app.signupHandler)
+	r.HandleFunc("/logout", app.logoutHandler)
 
 	srv := &http.Server{
 		Handler:      r,
