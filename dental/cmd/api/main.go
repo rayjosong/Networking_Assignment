@@ -10,7 +10,6 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 
 	"dental-clinic/internal/models"
 )
@@ -58,15 +57,8 @@ func main() {
 		errorLog: errorLog,
 	}
 
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", app.homeHandler)
-	r.HandleFunc("/login", app.loginHandler)
-	r.HandleFunc("/signup", app.signupHandler)
-	r.HandleFunc("/logout", app.logoutHandler)
-
 	srv := &http.Server{
-		Handler:      r,
+		Handler:      app.routes(),
 		Addr:         port,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
