@@ -1,0 +1,25 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{template "title" .}} - Dental Booking</title>
+    <!-- Link to the CSS stylesheet and favicon -->
+    <!-- Also some link to some fonts based by google -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700"
+    />
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Dental Appointment</a></h1>
+    </header>
+    {{/* {{template "nav" .}} */}}
+    <main>{{template "main" .}}</main>
+    <footer>
+      Powered by <a href="https://golang.org/">Go</a> in
+    </footer>
+  </body>
+</html>
+{{end}}

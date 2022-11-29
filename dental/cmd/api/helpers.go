@@ -5,6 +5,8 @@ import (
 
 	uuid "github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
+
+	"dental-clinic/internal/models"
 )
 
 // helpers
@@ -14,7 +16,7 @@ func convertToHash(object string) []byte {
 	return hashedValue
 }
 
-func getUser(res http.ResponseWriter, req *http.Request) User {
+func getUserFromCookie(res http.ResponseWriter, req *http.Request) models.User {
 	myCookie, err := req.Cookie("myCookie")
 	if err != nil {
 		// create cookie
@@ -28,9 +30,9 @@ func getUser(res http.ResponseWriter, req *http.Request) User {
 	http.SetCookie(res, myCookie)
 
 	// if user exists, get the user
-	var myUser User
+	var myUser models.User
 	if username, ok := mapSessions[myCookie.Value]; ok {
-		myUser = mapUsers[username]
+		myUser = models.mapUsers[username]
 	}
 
 	return myUser
@@ -44,7 +46,7 @@ func alreadyLoggedIn(req *http.Request) bool {
 	}
 
 	username := mapSessions[myCookie.Value] // is this a valid session?
-	_, ok := mapUsers[username]             // does this person exist?
+	_, ok := models.mapUsers[username]      // does this person exist?
 
 	return ok
 }
