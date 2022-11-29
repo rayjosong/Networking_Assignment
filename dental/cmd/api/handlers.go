@@ -2,7 +2,6 @@ package main
 
 import (
 	"dental-clinic/internal/models"
-	"log"
 	"net/http"
 	"text/template"
 
@@ -20,8 +19,7 @@ func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) 
 
 	tpl, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(res, "Internal Sever Error", 500)
+		app.serverError(res, err)
 		return
 	}
 
@@ -43,16 +41,17 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 		// check if user exist with username (draw from "db")
 		myUser, err := app.users.Get(username)
 		if err != nil {
-			http.Error(res, "User does not exist", http.StatusUnauthorized)
+			app.notFound(res)
 			return
 		}
 
 		// Matching of password entered
 		err = bcrypt.CompareHashAndPassword(myUser.Password, []byte(password))
 		if err != nil {
-			http.Error(res, "Username and/or password do not match", http.StatusForbidden)
+			app.notAuthenticated(res)
 			return
 		}
+
 		// create session
 		id := uuid.NewV4()
 		myCookie := &http.Cookie{
@@ -73,8 +72,7 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 
 	tpl, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(res, "Internal Sever Error", 500)
+		app.serverError(res, err)
 		return
 	}
 	tpl.ExecuteTemplate(res, "base", nil)
@@ -118,7 +116,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 			// myUser = models.User{username, bPassword, firstname, lastname, "patient"}
 			_, err := app.users.Insert(username, bPassword, firstname, lastname, "patient")
 			if err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				app.clientError(res, http.StatusBadRequest)
 				return
 			}
 
@@ -134,8 +132,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 
 	tpl, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
-		http.Error(res, "Internal Sever Error", 500)
+		app.serverError(res, err)
 		return
 	}
 

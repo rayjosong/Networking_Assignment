@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"runtime/debug"
 
 	uuid "github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -58,4 +60,25 @@ func (app *application) alreadyLoggedIn(req *http.Request) bool {
 	_, err = app.users.Get(username)
 
 	return err == nil
+}
+
+// Writes error message and ends a generic 500 Internal Server Error response to the user
+func (app *application) serverError(res http.ResponseWriter, err error) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	app.errorLog.Print(trace)
+
+	http.Error(res, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+// sends specific status code and corresponding description to the user (e.g. 400 "Bad Request")
+func (app *application) clientError(res http.ResponseWriter, status int) {
+	http.Error(res, http.StatusText(status), status)
+}
+
+func (app *application) notFound(res http.ResponseWriter) {
+	app.clientError(res, http.StatusNotFound)
+}
+
+func (app *application) notAuthenticated(res http.ResponseWriter) {
+	app.clientError(res, http.StatusUnauthorized)
 }

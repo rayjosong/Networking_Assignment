@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -18,8 +19,11 @@ const (
 	port = ":5221"
 )
 
+// contains services involved in this application
 type application struct {
-	users *models.UserModel
+	users    *models.UserModel
+	errorLog *log.Logger
+	infoLog  *log.Logger
 }
 
 // var tpl *template.Template
@@ -36,17 +40,22 @@ func init() {
 func main() {
 	dsn := flag.String("dsn", "web:pass@/dental?parseTime=true", "MySQL data")
 
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	// mySQL connection
 	db, err := openDB(*dsn)
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		fmt.Println("mysql running")
 	}
-
 	defer db.Close()
 
 	app := &application{
-		users: &models.UserModel{DB: db},
+		users:    &models.UserModel{DB: db},
+		infoLog:  infoLog,
+		errorLog: errorLog,
 	}
 
 	r := mux.NewRouter()
@@ -63,9 +72,10 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 		IdleTimeout:  45 * time.Minute,
 	}
-	fmt.Println("Server running on port ", port)
-	log.Fatal(srv.ListenAndServe())
 
+	infoLog.Printf("Starting server on %s", port)
+	err = srv.ListenAndServe()
+	errorLog.Fatal(err)
 }
 
 func openDB(dsn string) (*sql.DB, error) {
