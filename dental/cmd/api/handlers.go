@@ -2,6 +2,8 @@ package main
 
 import (
 	"dental-clinic/internal/models"
+	"fmt"
+	"log"
 	"net/http"
 	"text/template"
 
@@ -10,7 +12,8 @@ import (
 )
 
 func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) {
-	currentUser := app.getUserFromCookie(res, req)
+	data := app.newTemplateData()
+	data.CurrentUser = app.getUserFromCookie(res, req)
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -25,7 +28,10 @@ func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) 
 	}
 
 	// serve index.html
-	tpl.ExecuteTemplate(res, "base", currentUser)
+	err = tpl.ExecuteTemplate(res, "base", data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (app *application) loginHandler(res http.ResponseWriter, req *http.Request) {
@@ -129,6 +135,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 
 	files := []string{
 		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
 		"../../ui/page/signup.gohtml",
 	}
 
@@ -160,4 +167,33 @@ func (app *application) logoutHandler(res http.ResponseWriter, req *http.Request
 	http.SetCookie(res, myCookie)
 
 	http.Redirect(res, req, "/", http.StatusSeeOther)
+}
+
+func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
+	appts, err := app.appointments.GetAll()
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data := app.newTemplateData()
+	data.Appointments = appts
+	data.CurrentUser = app.getUserFromCookie(res, req)
+	fmt.Println(data.Appointments)
+
+	files := []string{
+		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
+		"../../ui/page/adminAppts.gohtml",
+	}
+
+	tpl, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(res, err)
+		return
+	}
+
+	err = tpl.ExecuteTemplate(res, "base", data)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

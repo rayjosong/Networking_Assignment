@@ -1,12 +1,12 @@
 {{define "title"}}Homepage{{end}}
 {{define "main"}}
-    {{if .Username}}
-      <h1>Welcome, {{.FirstName}}!</h1>
+    {{if .CurrentUser.Username}}
+      <h1>Welcome, {{.CurrentUser.FirstName}}!</h1>
     {{else}}
       <h1>Welcome. It's time to get your teeth in shape.</h1>
     {{end}}
 
-    {{if .Username}}
+    {{if .CurrentUser.Username}}
 
     <h3><a href="/restricted">Restricted Area (customise later)</a></h3>
     <h3><a href="/logout">Log Out</a></h3>

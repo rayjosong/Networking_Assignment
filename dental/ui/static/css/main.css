@@ -49,6 +49,27 @@ a:visited {
 }
 
 
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* ––––––––––––––––– PRESETS ––––––––––––––––– */
+
+/* Text colours */
+
+.text-coral {
+  color: var(--coral);
+}
+
+.text-cgblue {
+  color: var(--cgblue);
+}
+
+/* Background colours */
 .bg-yellow {
   background-color: var(--maxyellow);
   /* background-color: #FFCB77; */
@@ -60,12 +81,4 @@ a:visited {
 
 .bg-onyx {
   background: var(--onyx);
-}
-
-.footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
 }

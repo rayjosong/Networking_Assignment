@@ -7,12 +7,12 @@ import (
 )
 
 type User struct {
-	Username   string
-	Password   []byte
-	FirstName  string
-	LastName   string
-	Role       string
-	Created_at time.Time
+	Username   string    `json:"username"`
+	Password   []byte    `json:"password"`
+	FirstName  string    `json:"firstName"`
+	LastName   string    `json:"lastName"`
+	Role       string    `json:"role"`
+	Created_at time.Time `json:"createdAt"`
 }
 
 // var MapUsers = map[string]User{}
@@ -62,26 +62,3 @@ func (u *UserModel) Insert(username string, password []byte, firstname string, l
 
 	return int(num), nil
 }
-
-// func (u *UserModel) ShowAll() (*User, error) {
-// 	return nil, nil
-// }
-
-type Appointment struct {
-	patient   User      `json:"patient"`
-	startTime time.Time `json:"startTime"`
-	endTime   time.Time `json:"endTime"`
-	dentist   User      `json:"dentist"`
-}
-
-// return all appointments
-// func (a *Appointment) GetAll() (*Appointment, error) {
-
-// }
-
-// // insert appointments
-// func (a *Appointment) Insert(patient User, dentist User, startTime time.Time, endTime time.Time) {
-
-// }
-
-// edit appointments

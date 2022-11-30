@@ -1,0 +1,24 @@
+[
+  {
+    "apptID": 1,
+    "patient": {
+      "username": "rayjosong",
+      "firstName": "raymond"
+    },
+    "startTime": "10am",
+    "endTime": "11pm",
+    "dentist": "tan ah kau",
+    "cleared": false
+  },
+  {
+    "apptID": 2,
+    "patient": {
+      "username": "ahbeng",
+      "firstName": "zaraki"
+    },
+    "startTime": "10am",
+    "endTime": "11pm",
+    "dentist": "woohoo",
+    "cleared": false
+  }
+]

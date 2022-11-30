@@ -20,6 +20,7 @@ func (app *application) routes() *mux.Router {
 	r.HandleFunc("/login", app.loginHandler)
 	r.HandleFunc("/signup", app.signupHandler)
 	r.HandleFunc("/logout", app.logoutHandler)
+	r.HandleFunc("/appts", app.showAppointmentsHandler)
 
 	return r
 }

@@ -20,9 +20,10 @@ const (
 
 // contains services involved in this application
 type application struct {
-	users    *models.UserModel
-	errorLog *log.Logger
-	infoLog  *log.Logger
+	users        *models.UserModel
+	appointments *models.AppointmentsModel
+	errorLog     *log.Logger
+	infoLog      *log.Logger
 }
 
 // var tpl *template.Template
