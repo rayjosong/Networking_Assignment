@@ -20,8 +20,8 @@
             <th scope="row">{{.Id}}</th>
             <td>{{.Patient.FirstName}}</td>
             <td>{{.Dentist}}</td>
-            <td>{{.StartTime}}</td>
-            <td>{{.EndTime}}</td>
+            <td>{{formatDateTime .StartTime}}</td>
+            <td>{{formatDateTime .EndTime}}</td>
             <td>{{.Completed}}</td>
           </tr>
         {{end}}

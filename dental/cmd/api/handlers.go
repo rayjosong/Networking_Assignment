@@ -186,11 +186,15 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 		"../../ui/page/adminAppts.gohtml",
 	}
 
-	tpl, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(res, err)
-		return
+	funcMap := template.FuncMap{
+		"formatDateTime": app.appointments.FormatDateTime,
 	}
+
+	// tpl, err := template.ParseFiles(files...)
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(files...))
+	// if err != nil {
+	// 	app.serverError(res, err)
+	// }
 
 	err = tpl.ExecuteTemplate(res, "base", data)
 	if err != nil {
