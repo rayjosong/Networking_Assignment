@@ -26,16 +26,6 @@ func (a *Appointment) CheckAvailability() bool {
 	return (reflect.DeepEqual(a.Patient, User{}) && len(a.Dentist) != 0)
 }
 
-// type AppointmentModel struct {
-// 	DB []Username
-// }
-
-/*
-Methods:
-1. View all
-2. Insert
-*/
-
 // Retrieve all Appointment records
 func (a *AppointmentsModel) GetAll() ([]Appointment, error) {
 	data, err := os.ReadFile("../../internal/models/appts.json")
@@ -151,3 +141,68 @@ func (a *AppointmentsModel) FormatDateTime(timeStamp time.Time) string {
 
 	return fmt.Sprintf("%d-%d-%d %s:%s SGT", year, month, day, newHour, newMin)
 }
+
+func (a *AppointmentsModel) Delete(userID int) error {
+
+	// 1. read data from file
+	data, err := os.ReadFile("../../internal/models/appts.json")
+	if err != nil {
+		return err
+	}
+
+	var sliceAppts []Appointment
+	err = json.Unmarshal([]byte(data), &sliceAppts)
+	if err != nil {
+		return err
+	}
+
+	// Find the record
+	indexToDel, err := FindIndexFromSlice(userID, sliceAppts)
+	if err != nil {
+		return err
+	}
+
+	sliceAppts = func(s []Appointment, index int) []Appointment {
+		// Delete the record &&
+		back := s[:index]
+		for _, record := range back {
+			// Auto decrement the records below
+			record.Id = record.Id - 1
+		}
+
+		return append(s[:index], back...)
+	}(sliceAppts, indexToDel)
+
+	var payload []Appointment
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile("../../internal/models/appts.json", jsonData, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FindIndexFromSlice(userID int, a []Appointment) (int, error) {
+	for index, appt := range a {
+		if appt.Id == userID {
+			return index, nil
+		}
+	}
+
+	return 0, fmt.Errorf("the record of id = %d is not found", userID)
+}
+
+// type AppointmentModel struct {
+// 	DB []Username
+// }
+
+/*
+	Methods:
+	1. View all
+	2. Insert
+*/

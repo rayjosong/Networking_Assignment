@@ -2,7 +2,6 @@ package main
 
 import (
 	"dental-clinic/internal/models"
-	"fmt"
 	"log"
 	"net/http"
 	"text/template"
@@ -178,7 +177,6 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 	data := app.newTemplateData()
 	data.Appointments = appts
 	data.CurrentUser = app.getUserFromCookie(res, req)
-	fmt.Println(data.Appointments)
 
 	files := []string{
 		"../../ui/base.gohtml",
