@@ -2,6 +2,7 @@ package main
 
 import (
 	"dental-clinic/internal/models"
+	"fmt"
 	"log"
 	"net/http"
 	"text/template"
@@ -246,6 +247,37 @@ func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *htt
 	// app.infoLog.Println(req.Method)
 }
 
+func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("ENTERING THIS URL: ", req.URL)
+
+	data := app.newTemplateData()
+	data.CurrentUser = app.getUserFromCookie(res, req)
+
+	files := []string{
+		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
+		"../../ui/page/bookAppts.gohtml",
+	}
+
+	appts, err := app.appointments.GetAvailable()
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data.Appointments = appts
+
+	funcMap := template.FuncMap{
+		"formatDateTime": app.appointments.FormatDateTime,
+	}
+
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(files...))
+	err = tpl.ExecuteTemplate(res, "base", data)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+	}
+}
+
+// admin-only
 func (app *application) showAllUsersHandler(res http.ResponseWriter, req *http.Request) {
 	// obtain all users, pass to view
 

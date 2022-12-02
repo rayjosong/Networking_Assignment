@@ -23,7 +23,7 @@ type AppointmentsModel []Appointment
 
 // Check if timeslot is still available (def: true if no patient but got dentist)
 func (a *Appointment) CheckAvailability() bool {
-	return (reflect.DeepEqual(a.Patient, User{}) && len(a.Dentist) != 0)
+	return (reflect.DeepEqual(a.Patient, User{}) && len(a.Dentist) != 0 && !a.Completed)
 }
 
 func (a *AppointmentsModel) Get(user User) ([]Appointment, error) {
@@ -131,6 +131,22 @@ func (a *AppointmentsModel) GetLast() (Appointment, error) {
 	}
 
 	return s[len(s)-1], err
+}
+
+func (a *AppointmentsModel) GetAvailable() ([]Appointment, error) {
+	all, err := a.GetAll()
+	if err != nil {
+		return []Appointment{}, err
+	}
+
+	var availAppts []Appointment
+
+	for _, appt := range all {
+		if appt.CheckAvailability() {
+			availAppts = append(availAppts, appt)
+		}
+	}
+	return availAppts, nil
 }
 
 func (a *AppointmentsModel) Delete(userID int) error {

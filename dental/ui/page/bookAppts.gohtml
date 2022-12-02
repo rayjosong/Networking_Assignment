@@ -1,9 +1,7 @@
-{{define "title"}}My Appointment Page{{end}}
+{{define "title"}}Book Appointments{{end}}
 
 {{define "main"}}
-
-  {{if .Appointments}}
-  <h2>{{.CurrentUser.FirstName}}'s Appointments </h2>
+  <h2>Here are the available appointments for booking</h2>
     <table class="table table-bordered table-dark">
       <thead>
         <tr>
@@ -26,9 +24,4 @@
         {{end}}
       </tbody>
     </table>
-    <h3>Are you loaded with cash? <a href="/appts/book">Book</a> more appointments!</h3>
-  {{else}}
-  <h3>You do not have any appointments at the moment. <a href="/appts/book">Click</a> to view appointment slots.</h3>
-  {{end}}
-
 {{end}}
