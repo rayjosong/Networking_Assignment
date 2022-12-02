@@ -51,6 +51,8 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 			return
 		}
 
+		app.infoLog.Printf("Current User: %s\nRole: %s", myUser.Username, myUser.Role)
+
 		// Matching of password entered
 		err = bcrypt.CompareHashAndPassword(myUser.Password, []byte(password))
 		if err != nil {
@@ -196,6 +198,57 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 
 	err = tpl.ExecuteTemplate(res, "base", data)
 	if err != nil {
-		log.Fatalln(err)
+		app.errorLog.Fatalln(err)
+	}
+}
+
+func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
+	// if req.Method != http.MethodDelete {
+	// 	res.Header().Set("Allow", http.MethodDelete)
+	// 	http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+	// 	return
+	// }
+
+	// if req.Method != http.MethodDelete {
+	// 	res.Header().Set("Allow", "DELETE")
+	// 	res.WriteHeader(405)
+	// 	res.Write([]byte("Method not allowed"))
+	// 	return
+	// }
+
+	res.Write([]byte("OK!"))
+	// app.infoLog.Println("Entered this handler")
+	// app.infoLog.Println(req.Method)
+}
+
+func (app *application) showAllUsersHandler(res http.ResponseWriter, req *http.Request) {
+	// obtain all users, pass to view
+
+	allUsers, err := app.users.GetAll()
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data := app.newTemplateData()
+	data.Users = allUsers
+
+	// get current user to perform authorisation to view user data
+	data.CurrentUser = app.getUserFromCookie(res, req)
+
+	files := []string{
+		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
+		"../../ui/page/adminUsers.gohtml",
+	}
+
+	funcMap := template.FuncMap{
+		"formatCreatedAt": app.users.FormatCreatedAt,
+	}
+
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(files...))
+
+	err = tpl.ExecuteTemplate(res, "base", data)
+	if err != nil {
+		app.errorLog.Fatalln(err)
 	}
 }

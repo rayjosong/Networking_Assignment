@@ -8,6 +8,7 @@ type templateData struct {
 	Appointment  *models.Appointment
 	Appointments []models.Appointment
 	CurrentUser  models.User
+	Users        []*models.User
 }
 
 func (app *application) newTemplateData() *templateData {

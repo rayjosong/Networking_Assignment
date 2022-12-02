@@ -1,0 +1,27 @@
+{{define "title"}}View All Users (Admin){{end}}
+
+{{define "main"}}
+
+  {{if eq .CurrentUser.Role "admin"}}
+    <table class="table table-bordered table-dark">
+      <thead>
+        <tr>
+          <th scope="col">Username</th>
+          <th scope="col">Name</th>
+          <th scope="col">Role</th>
+          <th scope="col">Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Users}}
+          <tr>
+            <td>{{.Username}}</td>
+            <td>{{.FirstName}} {{.LastName}}</td>
+            <td>{{.Role}}</td>
+            <td>{{formatCreatedAt .Created_at}}</td>
+          </tr>
+        {{end}}
+  {{else}}
+    You are not the admin. You are not allowed to view this.
+  {{end}}
+{{end}}

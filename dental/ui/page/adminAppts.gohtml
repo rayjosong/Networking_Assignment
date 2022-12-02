@@ -25,8 +25,8 @@
             <td>{{formatDateTime .EndTime}}</td>
             <td>{{.Completed}}</td>
             <td>
-              <a href="/appts/{{.Id}}">Edit</a>
-              <a href="">Delete</a>
+              <a href="/appts/edit/{{.Id}}">Edit</a>
+              <a href="/appts/delete/{{.Id}}">Delete</a>
             </td>
           </tr>
         {{end}}

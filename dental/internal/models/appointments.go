@@ -173,8 +173,7 @@ func (a *AppointmentsModel) Delete(userID int) error {
 		return append(s[:index], back...)
 	}(sliceAppts, indexToDel)
 
-	var payload []Appointment
-	jsonData, err := json.Marshal(payload)
+	jsonData, err := json.Marshal(sliceAppts)
 	if err != nil {
 		return err
 	}

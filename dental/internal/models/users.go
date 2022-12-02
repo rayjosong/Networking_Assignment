@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -61,4 +62,42 @@ func (u *UserModel) Insert(username string, password []byte, firstname string, l
 	}
 
 	return int(num), nil
+}
+
+func (u *UserModel) GetAll() ([]*User, error) {
+	statement := `SELECT username, first_name, last_name, role, created_at FROM users`
+
+	rows, err := u.DB.Query(statement)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	users := []*User{}
+
+	for rows.Next() {
+		indiv := &User{}
+		err = rows.Scan(&indiv.Username, &indiv.FirstName, &indiv.LastName, &indiv.Role, &indiv.Created_at)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, indiv)
+
+		// when rows.Next() has finished, rows.Err() retrieves any error encountered during iteration
+		// IMPT to call this, don't assume that a successful iteration was completed over the whole result set
+		if err = rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+
+	return users, nil
+}
+
+// HELPER
+func (a *UserModel) FormatCreatedAt(timeStamp time.Time) string {
+	year, month, day := timeStamp.Local().Date()
+
+	return fmt.Sprintf("%d-%d-%d", year, month, day)
 }
