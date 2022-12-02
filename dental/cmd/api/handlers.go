@@ -171,19 +171,44 @@ func (app *application) logoutHandler(res http.ResponseWriter, req *http.Request
 }
 
 func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
-	appts, err := app.appointments.GetAll()
-	if err != nil {
-		app.errorLog.Println(err)
-	}
-
 	data := app.newTemplateData()
-	data.Appointments = appts
 	data.CurrentUser = app.getUserFromCookie(res, req)
 
 	files := []string{
 		"../../ui/base.gohtml",
 		"../../ui/partials/navbar.gohtml",
-		"../../ui/page/adminAppts.gohtml",
+		"../../ui/page/restrictAppts.gohtml",
+	}
+
+	switch data.CurrentUser.Role {
+	case "admin":
+		appts, err := app.appointments.GetAll()
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+
+		data.Appointments = appts
+
+		files = []string{
+			"../../ui/base.gohtml",
+			"../../ui/partials/navbar.gohtml",
+			"../../ui/page/adminAppts.gohtml",
+		}
+
+	case "patient":
+		myAppts, err := app.appointments.Get(data.CurrentUser)
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+
+		data.Appointments = myAppts
+
+		files = []string{
+			"../../ui/base.gohtml",
+			"../../ui/partials/navbar.gohtml",
+			"../../ui/page/userAppts.gohtml",
+		}
+
 	}
 
 	funcMap := template.FuncMap{
@@ -196,7 +221,7 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 	// 	app.serverError(res, err)
 	// }
 
-	err = tpl.ExecuteTemplate(res, "base", data)
+	err := tpl.ExecuteTemplate(res, "base", data)
 	if err != nil {
 		app.errorLog.Fatalln(err)
 	}

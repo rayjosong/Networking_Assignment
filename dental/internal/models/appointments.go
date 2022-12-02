@@ -26,6 +26,23 @@ func (a *Appointment) CheckAvailability() bool {
 	return (reflect.DeepEqual(a.Patient, User{}) && len(a.Dentist) != 0)
 }
 
+func (a *AppointmentsModel) Get(user User) ([]Appointment, error) {
+	appointments, err := a.GetAll()
+	if err != nil {
+		return []Appointment{}, err
+	}
+
+	// search for records where user exists
+	var records []Appointment
+	for _, record := range appointments {
+		if record.Patient.Username == user.Username {
+			records = append(records, record)
+		}
+	}
+
+	return records, nil
+}
+
 // Retrieve all Appointment records
 func (a *AppointmentsModel) GetAll() ([]Appointment, error) {
 	data, err := os.ReadFile("../../internal/models/appts.json")
@@ -41,7 +58,6 @@ func (a *AppointmentsModel) GetAll() ([]Appointment, error) {
 	return appt, nil
 }
 
-// TODO: Change string to User
 func (a *AppointmentsModel) Insert(patient User, start time.Time, end time.Time, dentist string, completed bool) (string, error) {
 	num, err := a.GetLast()
 	if err != nil {
@@ -77,7 +93,6 @@ func (a *AppointmentsModel) Insert(patient User, start time.Time, end time.Time,
 	return fmt.Sprintf("Json data added: %s", jsonData), nil
 }
 
-// TODO: Change string to User
 func (a *AppointmentsModel) Update(patient User, start time.Time, end time.Time, dentist string, completed bool) (string, error) {
 	payload := &Appointment{
 		// TODO: Figure out how to get ID
@@ -116,30 +131,6 @@ func (a *AppointmentsModel) GetLast() (Appointment, error) {
 	}
 
 	return s[len(s)-1], err
-}
-
-func (a *AppointmentsModel) FormatDateTime(timeStamp time.Time) string {
-	year, month, day := timeStamp.Local().Date()
-
-	hour := timeStamp.Hour()
-	minute := timeStamp.Minute()
-
-	var newHour string
-	var newMin string
-
-	if hour < 10 {
-		newHour = fmt.Sprintf("0%d", hour)
-	} else {
-		newHour = strconv.Itoa(hour)
-	}
-
-	if minute < 10 {
-		newMin = fmt.Sprintf("0%d", minute)
-	} else {
-		newMin = strconv.Itoa(minute)
-	}
-
-	return fmt.Sprintf("%d-%d-%d %s:%s SGT", year, month, day, newHour, newMin)
 }
 
 func (a *AppointmentsModel) Delete(userID int) error {
@@ -186,6 +177,7 @@ func (a *AppointmentsModel) Delete(userID int) error {
 	return nil
 }
 
+// TODO: Double check if this fulfils the purpose
 func FindIndexFromSlice(userID int, a []Appointment) (int, error) {
 	for index, appt := range a {
 		if appt.Id == userID {
@@ -205,3 +197,29 @@ func FindIndexFromSlice(userID int, a []Appointment) (int, error) {
 	1. View all
 	2. Insert
 */
+
+// HELPER
+
+func (a *AppointmentsModel) FormatDateTime(timeStamp time.Time) string {
+	year, month, day := timeStamp.Local().Date()
+
+	hour := timeStamp.Hour()
+	minute := timeStamp.Minute()
+
+	var newHour string
+	var newMin string
+
+	if hour < 10 {
+		newHour = fmt.Sprintf("0%d", hour)
+	} else {
+		newHour = strconv.Itoa(hour)
+	}
+
+	if minute < 10 {
+		newMin = fmt.Sprintf("0%d", minute)
+	} else {
+		newMin = strconv.Itoa(minute)
+	}
+
+	return fmt.Sprintf("%d-%d-%d %s:%s SGT", year, month, day, newHour, newMin)
+}

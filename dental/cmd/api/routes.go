@@ -21,6 +21,8 @@ func (app *application) routes() *httprouter.Router {
 	r.HandlerFunc(http.MethodPost, "/login", app.loginHandler)
 	r.HandlerFunc(http.MethodGet, "/signup", app.signupHandler)
 	r.HandlerFunc(http.MethodGet, "/logout", app.logoutHandler)
+
+	// Admin pages
 	r.HandlerFunc(http.MethodGet, "/appts", app.showAppointmentsHandler)
 	r.HandlerFunc(http.MethodGet, "/users", app.showAllUsersHandler)
 
