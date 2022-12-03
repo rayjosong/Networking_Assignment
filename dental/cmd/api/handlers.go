@@ -1,12 +1,14 @@
 package main
 
 import (
-	"dental-clinic/internal/models"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -94,7 +96,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 		return
 	}
 
-	var myUser models.User
+	data := app.newTemplateData()
 	// process form submission
 	if req.Method == http.MethodPost {
 		username := req.FormValue("username")
@@ -123,7 +125,6 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 			// bUsername := convertToHash(username) // ignored potential error
 			bPassword := convertToHash(password) // ignored potential error
 
-			// myUser = models.User{username, bPassword, firstname, lastname, "patient"}
 			_, err := app.users.Insert(username, bPassword, firstname, lastname, "patient")
 			if err != nil {
 				app.clientError(res, http.StatusBadRequest)
@@ -147,7 +148,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 		return
 	}
 
-	tpl.ExecuteTemplate(res, "base", myUser)
+	tpl.ExecuteTemplate(res, "base", data)
 }
 
 func (app *application) logoutHandler(res http.ResponseWriter, req *http.Request) {
@@ -229,22 +230,38 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 }
 
 func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
-	// if req.Method != http.MethodDelete {
-	// 	res.Header().Set("Allow", http.MethodDelete)
-	// 	http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
-	// 	return
-	// }
+	if req.Method != http.MethodDelete {
+		res.Header().Set("Allow", "DELETE")
+		res.WriteHeader(405)
+		res.Write([]byte("Method not allowed"))
+		return
+	}
 
-	// if req.Method != http.MethodDelete {
-	// 	res.Header().Set("Allow", "DELETE")
-	// 	res.WriteHeader(405)
-	// 	res.Write([]byte("Method not allowed"))
-	// 	return
-	// }
+	param := chi.URLParam(req, "apptID")
+	apptID, err := strconv.Atoi(param)
+	if err != nil {
+		app.errorLog.Println(err)
+		res.Write([]byte(err.Error()))
+	}
 
-	res.Write([]byte("OK!"))
-	// app.infoLog.Println("Entered this handler")
-	// app.infoLog.Println(req.Method)
+	// Remove the appt
+	err = app.appointments.Delete(apptID)
+	if err != nil {
+		app.errorLog.Println(err)
+		res.Write([]byte(err.Error()))
+	} else {
+		files := []string{
+			"../../ui/base.gohtml",
+			"../../ui/partials/navbar.gohtml",
+			"../../ui/page/notifications/notifyApptsDeleted.gohtml",
+		}
+
+		tpl := template.Must(template.New("").ParseFiles(files...))
+		err = tpl.ExecuteTemplate(res, "base", nil)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+		}
+	}
 }
 
 func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
@@ -274,6 +291,41 @@ func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *ht
 	err = tpl.ExecuteTemplate(res, "base", data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (app *application) bookAppointmentsHandlerPut(res http.ResponseWriter, req *http.Request) {
+	data := app.newTemplateData()
+	data.CurrentUser = app.getUserFromCookie(res, req)
+
+	params := httprouter.ParamsFromContext(req.Context()).ByName("id")
+	id, err := strconv.Atoi(params)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	// use param to update the appt
+	updated, err := app.appointments.Update(id, data.CurrentUser, false)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+	app.infoLog.Println("Updated payload: ", updated)
+
+	files := []string{
+		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
+		"../../ui/page/notifications/notifyApptsUpdated.gohtml",
+	}
+
+	tpl, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(res, err)
+		return
+	}
+
+	err = tpl.ExecuteTemplate(res, "base", data)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 

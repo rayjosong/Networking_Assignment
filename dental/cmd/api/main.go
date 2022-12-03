@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/fatih/color"
 	_ "github.com/go-sql-driver/mysql"
 
 	"dental-clinic/internal/models"
@@ -41,8 +42,8 @@ func init() {
 func main() {
 	dsn := flag.String("dsn", "web:pass@/dental?parseTime=true", "MySQL data")
 
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	infoLog := log.New(os.Stdout, color.New(color.BgHiGreen).Sprintf(" INFO \t"), log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, color.New(color.BgHiRed).Sprintf(" ERROR \t"), log.Ldate|log.Ltime|log.Lshortfile)
 
 	// mySQL connection
 	db, err := openDB(*dsn)

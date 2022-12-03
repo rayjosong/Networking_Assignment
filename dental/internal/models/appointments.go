@@ -43,6 +43,23 @@ func (a *AppointmentsModel) Get(user User) ([]Appointment, error) {
 	return records, nil
 }
 
+// func (a *AppointmentsModel) GetApptById(id int) (Appointment, error) {
+// 	appointments, err := a.GetAll()
+// 	if err != nil {
+// 		return Appointment{}, err
+// 	}
+
+// 	// search for records where apptId = id
+// 	var appt Appointment
+// 	for _, record := range appointments {
+// 		if record.Id == id {
+// 			appt = record
+// 		}
+// 	}
+
+// 	return appt, nil
+// }
+
 // Retrieve all Appointment records
 func (a *AppointmentsModel) GetAll() ([]Appointment, error) {
 	data, err := os.ReadFile("../../internal/models/appts.json")
@@ -93,34 +110,36 @@ func (a *AppointmentsModel) Insert(patient User, start time.Time, end time.Time,
 	return fmt.Sprintf("Json data added: %s", jsonData), nil
 }
 
-func (a *AppointmentsModel) Update(patient User, start time.Time, end time.Time, dentist string, completed bool) (string, error) {
-	payload := &Appointment{
-		// TODO: Figure out how to get ID
-		Patient:   patient,
-		StartTime: start,
-		EndTime:   end,
-		Dentist:   dentist,
-		Completed: completed,
-	}
+func (a *AppointmentsModel) Update(apptId int, patient User, completed bool) (*Appointment, error) {
 
 	// read data from file
 	fileLines, err := a.GetAll()
 	if err != nil {
-		return "", err
+		return &Appointment{}, err
 	}
-	newPayload := append(fileLines, *payload)
 
-	jsonData, err := json.Marshal(newPayload)
+	var newFileLines []Appointment
+	var updatedPayload Appointment
+	// find appointment
+	for _, appt := range fileLines {
+		if appt.Id == apptId {
+			appt.Patient = patient
+			updatedPayload = appt
+		}
+		newFileLines = append(newFileLines, appt)
+	}
+
+	jsonData, err := json.Marshal(newFileLines)
 	if err != nil {
-		return "", err
+		return &Appointment{}, err
 	}
 
 	err = os.WriteFile("../../internal/models/appts.json", jsonData, 0644)
 	if err != nil {
-		return "", err
+		return &Appointment{}, err
 	}
 
-	return fmt.Sprintf("JSON data Updated: %s", jsonData), nil
+	return &updatedPayload, nil
 }
 
 // Helper func: Retrieve last appointment record
@@ -149,7 +168,7 @@ func (a *AppointmentsModel) GetAvailable() ([]Appointment, error) {
 	return availAppts, nil
 }
 
-func (a *AppointmentsModel) Delete(userID int) error {
+func (a *AppointmentsModel) Delete(apptID int) error {
 
 	// 1. read data from file
 	data, err := os.ReadFile("../../internal/models/appts.json")
@@ -164,20 +183,23 @@ func (a *AppointmentsModel) Delete(userID int) error {
 	}
 
 	// Find the record
-	indexToDel, err := FindIndexFromSlice(userID, sliceAppts)
+	indexToDel, err := FindIndexFromSlice(apptID, sliceAppts)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Index: ", indexToDel)
+
 	sliceAppts = func(s []Appointment, index int) []Appointment {
 		// Delete the record &&
-		back := s[:index]
+		back := s[index+1:]
+		newBack := []Appointment{}
 		for _, record := range back {
 			// Auto decrement the records below
 			record.Id = record.Id - 1
+			newBack = append(newBack, record)
 		}
-
-		return append(s[:index], back...)
+		return append(s[:index], newBack...)
 	}(sliceAppts, indexToDel)
 
 	jsonData, err := json.Marshal(sliceAppts)
@@ -194,14 +216,15 @@ func (a *AppointmentsModel) Delete(userID int) error {
 }
 
 // TODO: Double check if this fulfils the purpose
-func FindIndexFromSlice(userID int, a []Appointment) (int, error) {
+func FindIndexFromSlice(apptID int, a []Appointment) (int, error) {
 	for index, appt := range a {
-		if appt.Id == userID {
+		fmt.Println("appt.ID = ", appt.Id)
+		if appt.Id == apptID {
 			return index, nil
 		}
 	}
 
-	return 0, fmt.Errorf("the record of id = %d is not found", userID)
+	return 0, fmt.Errorf("the record of id = %d is not found", apptID)
 }
 
 // type AppointmentModel struct {

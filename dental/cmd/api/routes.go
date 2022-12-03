@@ -3,37 +3,44 @@ package main
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
-func (app *application) routes() *httprouter.Router {
-	r := httprouter.New()
+func (app *application) routes() *chi.Mux {
+	r := chi.NewRouter()
 
 	// fileServer := http.FileServer(http.Dir("../../ui/static"))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
+	// Middleware
+	r.Use(ChangeMethod)
+	r.Use(app.logRequest)
+
+	// Load CSS file
 	fileServer := http.FileServer(http.Dir("../../ui/static"))
-	// r.Handler(http.MethodGet, "/static/*filepath", fileServer)
-	r.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static/", fileServer))
-	r.Handler(http.MethodGet, "/appts/static/*filepath", http.StripPrefix("/appts/static/", fileServer))
+	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	r.Handle("/appts/static/*", http.StripPrefix("/appts/static/", fileServer))
+	r.Handle("/appts/delete/static/*", http.StripPrefix("/appts/delete/static/", fileServer))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
 
-	r.HandlerFunc(http.MethodGet, "/", app.homeHandler)
+	r.Get("/", app.homeHandler)
 
 	// auth
-	r.HandlerFunc(http.MethodGet, "/login", app.loginHandler)
-	r.HandlerFunc(http.MethodPost, "/login", app.loginHandler)
-	r.HandlerFunc(http.MethodGet, "/signup", app.signupHandler)
-	r.HandlerFunc(http.MethodGet, "/logout", app.logoutHandler)
+	r.Get("/login", app.loginHandler)
+	r.Post("/login", app.loginHandler)
+	r.Get("/signup", app.signupHandler)
+	r.Post("/signup", app.signupHandler)
+	r.Get("/logout", app.logoutHandler)
 
 	// appointments
-	r.HandlerFunc(http.MethodGet, "/appts", app.showAppointmentsHandler)
-	r.HandlerFunc(http.MethodGet, "/appts/book", app.bookAppointmentsHandler)
+	r.Get("/appts", app.showAppointmentsHandler)
+	r.Get("/appts/book", app.bookAppointmentsHandler)
+	r.Put("/appts/book/{id}", app.bookAppointmentsHandlerPut)
 
 	// Admin-only pages
-	r.HandlerFunc(http.MethodGet, "/users", app.showAllUsersHandler)
+	r.Get("/users", app.showAllUsersHandler)
 
-	r.HandlerFunc(http.MethodDelete, "/appts/delete/{id}", app.delAppointmentsHandler)
+	r.Delete("/appts/delete/{apptID}", app.delAppointmentsHandler)
 
 	// r.HandleFunc("/appts/delete/{id}", app.delAppointmentsHandler).Methods(http.MethodDelete)
 

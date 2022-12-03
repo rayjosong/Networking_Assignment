@@ -8,6 +8,7 @@ import (
 )
 
 type User struct {
+	Uid        int       `json:"uid"`
 	Username   string    `json:"username"`
 	Password   []byte    `json:"password"`
 	FirstName  string    `json:"firstName"`
@@ -33,7 +34,27 @@ func (u *UserModel) Get(username string) (*User, error) {
 
 	user := &User{}
 
-	err := row.Scan(&user.Username, &user.Password, &user.FirstName, &user.LastName, &user.Role, &user.Created_at)
+	err := row.Scan(&user.Uid, &user.Username, &user.Password, &user.FirstName, &user.LastName, &user.Role, &user.Created_at)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("the chosen user cannot be found")
+		} else {
+			return nil, err
+		}
+	}
+
+	return user, nil
+}
+
+func (u *UserModel) GetUserByUid(id int) (*User, error) {
+	statement := `SELECT * FROM users WHERE uid = ?`
+
+	// row is a pointer to sql.Row which holds result from the DB
+	row := u.DB.QueryRow(statement, id)
+
+	user := &User{}
+
+	err := row.Scan(&user.Uid, &user.Username, &user.Password, &user.FirstName, &user.LastName, &user.Role, &user.Created_at)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("the chosen user cannot be found")

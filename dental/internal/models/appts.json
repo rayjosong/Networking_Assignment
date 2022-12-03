@@ -2,6 +2,7 @@
   {
     "apptID": 1,
     "patient": {
+      "uid": 0,
       "username": "raymondong",
       "password": null,
       "firstName": "",
@@ -17,6 +18,7 @@
   {
     "apptID": 2,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -32,6 +34,7 @@
   {
     "apptID": 3,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -47,6 +50,7 @@
   {
     "apptID": 4,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -62,6 +66,7 @@
   {
     "apptID": 5,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -77,6 +82,7 @@
   {
     "apptID": 6,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -92,6 +98,7 @@
   {
     "apptID": 7,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
@@ -107,6 +114,7 @@
   {
     "apptID": 8,
     "patient": {
+      "uid": 0,
       "username": "",
       "password": null,
       "firstName": "",
