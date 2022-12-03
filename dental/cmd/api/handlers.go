@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/julienschmidt/httprouter"
@@ -261,6 +262,10 @@ func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *htt
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 		}
+
+		time.Sleep(time.Second * 2)
+
+		http.Redirect(res, req, "/appts", http.StatusSeeOther)
 	}
 }
 
