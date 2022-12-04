@@ -14,13 +14,10 @@ func ChangeMethod(next http.Handler) http.Handler {
 			switch method := req.PostFormValue("_method"); method {
 
 			case http.MethodPut:
-				fmt.Println(method)
 				fallthrough
 			case http.MethodPatch:
-				fmt.Println(method)
 				fallthrough
 			case http.MethodDelete:
-				fmt.Println(method)
 				req.Method = method
 			}
 		}

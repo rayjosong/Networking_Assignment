@@ -31,14 +31,6 @@ type application struct {
 
 var mapSessions = map[string]string{}
 
-// TODO: REMOVE THIS IF NOT NEEDED
-func init() {
-	// tpl = template.Must(template.ParseGlob("../../../frontend/web/templates/*"))
-
-	// creating admin user (this should not be the way to do it on a live system)
-	// mapUsers["Admin"] = User{"Admin", convertToHash("Password"), "admin", "admin", "admin"} // do not do this. use json file outside of module instead
-}
-
 func main() {
 	dsn := flag.String("dsn", "web:pass@/dental?parseTime=true", "MySQL data")
 

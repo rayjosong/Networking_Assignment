@@ -35,11 +35,12 @@ func (app *application) routes() *chi.Mux {
 	// appointments
 	r.Get("/appts", app.showAppointmentsHandler)
 	r.Get("/appts/book", app.bookAppointmentsHandler)
-	r.Put("/appts/book/{id}", app.bookAppointmentsHandlerPut)
+	r.Post("/appts/book", app.bookAppointmentsHandlerPut)
 
 	// Admin-only pages
 	r.Get("/users", app.showAllUsersHandler)
 
+	r.Put("/appts/edit/{apptID}", app.editAppointmentHandler)
 	r.Delete("/appts/delete/{apptID}", app.delAppointmentsHandler)
 
 	// r.HandleFunc("/appts/delete/{id}", app.delAppointmentsHandler).Methods(http.MethodDelete)

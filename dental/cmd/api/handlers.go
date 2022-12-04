@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -55,7 +54,7 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 			return
 		}
 
-		app.infoLog.Printf("Current User: %s\nRole: %s", myUser.Username, myUser.Role)
+		app.infoLog.Printf("Current User: %s\t\tRole: %s", myUser.Username, myUser.Role)
 
 		// Matching of password entered
 		err = bcrypt.CompareHashAndPassword(myUser.Password, []byte(password))
@@ -183,6 +182,7 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 		"../../ui/page/restrictAppts.gohtml",
 	}
 
+	fmt.Println(data.CurrentUser.Role)
 	switch data.CurrentUser.Role {
 	case "admin":
 		appts, err := app.appointments.GetAll()
@@ -270,7 +270,6 @@ func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *htt
 }
 
 func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("ENTERING THIS URL: ", req.URL)
 
 	data := app.newTemplateData()
 	data.CurrentUser = app.getUserFromCookie(res, req)
@@ -303,18 +302,24 @@ func (app *application) bookAppointmentsHandlerPut(res http.ResponseWriter, req 
 	data := app.newTemplateData()
 	data.CurrentUser = app.getUserFromCookie(res, req)
 
-	params := httprouter.ParamsFromContext(req.Context()).ByName("id")
-	id, err := strconv.Atoi(params)
-	if err != nil {
-		app.errorLog.Println(err)
-	}
+	req.ParseForm()
+	selected := req.Form["selectedAppts"]
 
-	// use param to update the appt
-	updated, err := app.appointments.Update(id, data.CurrentUser, false)
-	if err != nil {
-		app.errorLog.Println(err)
+	fmt.Println(selected)
+
+	for _, num := range selected {
+		aID, err := strconv.Atoi(num)
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+
+		updated, err := app.appointments.Update(aID, data.CurrentUser, false)
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+
+		app.infoLog.Println("Updated payload: ", updated)
 	}
-	app.infoLog.Println("Updated payload: ", updated)
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -365,4 +370,8 @@ func (app *application) showAllUsersHandler(res http.ResponseWriter, req *http.R
 	if err != nil {
 		app.errorLog.Fatalln(err)
 	}
+}
+
+func (a *application) editAppointmentHandler(res http.ResponseWriter, req *http.Request) {
+
 }

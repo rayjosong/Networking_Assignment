@@ -28,15 +28,13 @@ func (app *application) getUserFromCookie(res http.ResponseWriter, req *http.Req
 			Name:  "myCookie",
 			Value: id.String(),
 		}
+		http.SetCookie(res, myCookie)
 	}
-	// set cookie
-	http.SetCookie(res, myCookie)
 
 	var myUser *models.User
 	// if user exists, get the user
 	if username, ok := mapSessions[myCookie.Value]; ok {
 		// retrieve user details from database
-		// myUser, err = models.mapUsers[username]
 		myUser, err = app.users.Get(username)
 		if err != nil {
 			log.Println(err)

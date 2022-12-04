@@ -25,8 +25,10 @@
             <td>{{formatDateTime .EndTime}}</td>
             <td>{{.Completed}}</td>
             <td>
-
-              <a href="/appts/edit/{{.Id}}">Edit</a>
+              <form action="/appts/edit/{{.Id}}" method="POST">
+                <input type="hidden" name="_method" value="PUT">
+                <button type="submit">Edit</button>
+              </form>
               <form action="/appts/delete/{{.Id}}" method="POST">
                 <input type="hidden" name="_method" value="DELETE">
                 <button type="submit">Delete</button>

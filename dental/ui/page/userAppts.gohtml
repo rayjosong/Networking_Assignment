@@ -7,7 +7,6 @@
     <table class="table table-bordered table-dark">
       <thead>
         <tr>
-          <th scope="col">#</th>
           <th scope="col">Dentist</th>
           <th scope="col">Start Time</th>
           <th scope="col">End Time</th>
@@ -17,7 +16,6 @@
       <tbody>
         {{range .Appointments}}
           <tr>
-            <th scope="row">{{.Id}}</th>
             <td>{{.Dentist}}</td>
             <td>{{formatDateTime .StartTime}}</td>
             <td>{{formatDateTime .EndTime}}</td>

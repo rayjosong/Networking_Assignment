@@ -219,10 +219,8 @@ func (a *AppointmentsModel) Delete(apptID int) error {
 	return nil
 }
 
-// TODO: Double check if this fulfils the purpose
 func FindIndexFromSlice(apptID int, a []Appointment) (int, error) {
 	for index, appt := range a {
-		fmt.Println("appt.ID = ", appt.Id)
 		if appt.Id == apptID {
 			return index, nil
 		}

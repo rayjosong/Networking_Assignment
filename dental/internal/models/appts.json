@@ -82,13 +82,13 @@
   {
     "apptID": 6,
     "patient": {
-      "uid": 0,
-      "username": "",
-      "password": null,
-      "firstName": "",
-      "lastName": "",
-      "role": "",
-      "createdAt": "0001-01-01T00:00:00Z"
+      "uid": 2,
+      "username": "raymondong",
+      "password": "JDJhJDA0JFVEaU1nUEs4V1Y4QTY4LmxUSkZoZC5vVjJLUVJ1SUxOaVNkVG5DZHVoT1Z6dy5LcXBod0RD",
+      "firstName": "Raymond",
+      "lastName": "Ong",
+      "role": "patient",
+      "createdAt": "2022-12-02T10:38:55Z"
     },
     "startTime": "2023-02-02T04:05:05.76Z",
     "endTime": "2023-02-02T05:05:05.76Z",
@@ -98,13 +98,13 @@
   {
     "apptID": 7,
     "patient": {
-      "uid": 0,
-      "username": "",
-      "password": null,
-      "firstName": "",
-      "lastName": "",
-      "role": "",
-      "createdAt": "0001-01-01T00:00:00Z"
+      "uid": 2,
+      "username": "raymondong",
+      "password": "JDJhJDA0JFVEaU1nUEs4V1Y4QTY4LmxUSkZoZC5vVjJLUVJ1SUxOaVNkVG5DZHVoT1Z6dy5LcXBod0RD",
+      "firstName": "Raymond",
+      "lastName": "Ong",
+      "role": "patient",
+      "createdAt": "2022-12-02T10:38:55Z"
     },
     "startTime": "2023-02-02T05:05:05.76Z",
     "endTime": "2023-02-02T06:05:05.76Z",

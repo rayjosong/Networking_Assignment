@@ -1,25 +1,30 @@
 {{define "title"}}Book Appointments{{end}}
 
 {{define "main"}}
-  <h2>Here are the available appointments for booking</h2>
-    <table class="table table-bordered table-dark">
-      <thead>
-        <tr>
-          <th scope="col">Dentist</th>
-          <th scope="col">Start Time</th>
-          <th scope="col">End Time</th>
-          <th scope="col">Completed?</th>
-        </tr>
-      </thead>
-      <tbody>
+<h2>Here are the available appointments for booking</h2>
+<table class="table table-bordered table-dark">
+  <thead>
+    <tr>
+      <th scope="col">Select</th>
+      <th scope="col">Dentist</th>
+      <th scope="col">Start Time</th>
+      <th scope="col">End Time</th>
+      <th scope="col">Completed?</th>
+    </tr>
+  </thead>
+  <form method="POST">
+    <tbody>
         {{range .Appointments}}
-          <tr>
-            <td><a href="/appts/book/{{.Id}}">{{.Dentist}}</a></td>
-            <td>{{formatDateTime .StartTime}}</td>
-            <td>{{formatDateTime .EndTime}}</td>
-            <td>{{.Completed}}</td>
-          </tr>
+        <tr>
+          <td><input type="checkbox" name="selectedAppts" value="{{.Id}}"></td>
+          <td><a href="/appts/book/{{.Id}}">{{.Dentist}}</a></td>
+          <td>{{formatDateTime .StartTime}}</td>
+          <td>{{formatDateTime .EndTime}}</td>
+          <td>{{.Completed}}</td>
+        </tr>
         {{end}}
-      </tbody>
-    </table>
+    </tbody>
+    <input type="submit">
+  </form>
+</table>
 {{end}}
