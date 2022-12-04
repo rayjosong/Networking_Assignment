@@ -263,10 +263,10 @@ func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *htt
 			http.Error(res, err.Error(), http.StatusBadRequest)
 		}
 
-		time.Sleep(time.Second * 2)
-
-		http.Redirect(res, req, "/appts", http.StatusSeeOther)
 	}
+	// TODO: MAKE SURE THIS WORKS
+	time.Sleep(time.Second * 1)
+	http.Redirect(res, req, "/appts", http.StatusSeeOther)
 }
 
 func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *http.Request) {

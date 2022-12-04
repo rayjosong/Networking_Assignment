@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// Asserts method stated in the HTML form
+// Asserts the HTTP method to chosen method before sending it to the request handler
 func ChangeMethod(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("I AM IN THE MIDDLEWARE")
@@ -28,6 +28,7 @@ func ChangeMethod(next http.Handler) http.Handler {
 	})
 }
 
+// Log all HTTP requests
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		app.infoLog.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())

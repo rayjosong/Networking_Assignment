@@ -3,4 +3,11 @@
 {{define "main"}}
   <h3>The appointment has been deleted successfully.</h3>
   <h3><a href="/appts">Return to Appointment Page</a></h3>
+
+  <script type="text/javascript">
+      const redirectToAppts => () {
+        location.href = "/appts"
+      }
+      setTimeout(redirectToAppts, 1000);
+  </script>
 {{end}}

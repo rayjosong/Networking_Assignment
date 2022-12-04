@@ -75,6 +75,7 @@ func (a *AppointmentsModel) GetAll() ([]Appointment, error) {
 	return appt, nil
 }
 
+// Insert one record into database
 func (a *AppointmentsModel) Insert(patient User, start time.Time, end time.Time, dentist string, completed bool) (string, error) {
 	num, err := a.GetLast()
 	if err != nil {
@@ -110,6 +111,7 @@ func (a *AppointmentsModel) Insert(patient User, start time.Time, end time.Time,
 	return fmt.Sprintf("Json data added: %s", jsonData), nil
 }
 
+// Edit one record on the json database
 func (a *AppointmentsModel) Update(apptId int, patient User, completed bool) (*Appointment, error) {
 
 	// read data from file
@@ -152,6 +154,7 @@ func (a *AppointmentsModel) GetLast() (Appointment, error) {
 	return s[len(s)-1], err
 }
 
+// Retrieve all appointments that are available for booking
 func (a *AppointmentsModel) GetAvailable() ([]Appointment, error) {
 	all, err := a.GetAll()
 	if err != nil {
@@ -168,6 +171,7 @@ func (a *AppointmentsModel) GetAvailable() ([]Appointment, error) {
 	return availAppts, nil
 }
 
+// Given the appointmentID, delete the recod from the json database
 func (a *AppointmentsModel) Delete(apptID int) error {
 
 	// 1. read data from file
@@ -239,6 +243,7 @@ func FindIndexFromSlice(apptID int, a []Appointment) (int, error) {
 
 // HELPER
 
+// Format date-time to the "YY-MM-DD HH-MM" format
 func (a *AppointmentsModel) FormatDateTime(timeStamp time.Time) string {
 	year, month, day := timeStamp.Local().Date()
 

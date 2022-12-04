@@ -46,6 +46,7 @@ func (u *UserModel) Get(username string) (*User, error) {
 	return user, nil
 }
 
+// Given the UID, obtain the User object
 func (u *UserModel) GetUserByUid(id int) (*User, error) {
 	statement := `SELECT * FROM users WHERE uid = ?`
 
@@ -85,6 +86,7 @@ func (u *UserModel) Insert(username string, password []byte, firstname string, l
 	return int(num), nil
 }
 
+// Obtain all users that are saved on the database
 func (u *UserModel) GetAll() ([]*User, error) {
 	statement := `SELECT username, first_name, last_name, role, created_at FROM users`
 
