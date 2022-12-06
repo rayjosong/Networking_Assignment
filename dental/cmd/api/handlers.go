@@ -9,13 +9,21 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) {
 	data := app.newTemplateData()
-	data.CurrentUser = app.getUserFromCookie(res, req)
+
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	data.CurrentUser = currentUser
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -54,7 +62,9 @@ func (app *application) loginHandler(res http.ResponseWriter, req *http.Request)
 			return
 		}
 
-		app.infoLog.Printf("Current User: %s\t\tRole: %s", myUser.Username, myUser.Role)
+		data := app.newTemplateData()
+		data.CurrentUser = myUser
+		app.infoLog.Printf("Current User: %s\tRole: %s", myUser.Username, myUser.Role)
 
 		// Matching of password entered
 		err = bcrypt.CompareHashAndPassword(myUser.Password, []byte(password))
@@ -97,6 +107,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 	}
 
 	data := app.newTemplateData()
+
 	// process form submission
 	if req.Method == http.MethodPost {
 		username := req.FormValue("username")
@@ -107,7 +118,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 		if username != "" {
 			// check if username exists/is taken
 			// if exist/taken, return error and exit
-			if u, _ := app.users.Get(username); u != nil {
+			if u, _ := app.users.Get(username); u.Username == username {
 				http.Error(res, "Username already taken", http.StatusForbidden)
 				return
 			}
@@ -122,8 +133,7 @@ func (app *application) signupHandler(res http.ResponseWriter, req *http.Request
 			mapSessions[myCookie.Value] = username
 
 			// encrypt the username & password then store user
-			// bUsername := convertToHash(username) // ignored potential error
-			bPassword := convertToHash(password) // ignored potential error
+			bPassword := convertToHash(password)
 
 			_, err := app.users.Insert(username, bPassword, firstname, lastname, "patient")
 			if err != nil {
@@ -172,9 +182,77 @@ func (app *application) logoutHandler(res http.ResponseWriter, req *http.Request
 	http.Redirect(res, req, "/", http.StatusSeeOther)
 }
 
-func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
+func (app *application) updateCredsHandler(res http.ResponseWriter, req *http.Request) {
+	if !app.alreadyLoggedIn(req) {
+		app.errorLog.Println("You are not logged in")
+		http.Redirect(res, req, "/", http.StatusSeeOther) // redirect to login page
+	}
+
 	data := app.newTemplateData()
-	data.CurrentUser = app.getUserFromCookie(res, req)
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+	data.CurrentUser = currentUser
+
+	if req.Method == http.MethodPost {
+		newUsername := req.FormValue("username")
+		newPassword := req.FormValue("password")
+
+		if newUsername != "" {
+			// check if username exists/is taken
+			// if exist/taken, return error and exit
+			if u, _ := app.users.Get(newUsername); u.Username == newUsername {
+				http.Error(res, "Username already taken", http.StatusForbidden)
+				return
+			}
+
+			// get current cookie and change the user
+			myCookie, err := req.Cookie("myCookie")
+			if err != nil {
+				app.errorLog.Println(err)
+			}
+
+			mapSessions[myCookie.Value] = newUsername
+
+			// encrypt the username & password then store user
+			bNewPassword := convertToHash(newPassword)
+
+			_, err = app.users.Update(currentUser.Uid, newUsername, bNewPassword)
+			if err != nil {
+				app.clientError(res, http.StatusBadRequest)
+				return
+			}
+
+		}
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
+	}
+
+	files := []string{
+		"../../ui/base.gohtml",
+		"../../ui/partials/navbar.gohtml",
+		"../../ui/page/updateCreds.gohtml",
+	}
+
+	tpl, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(res, err)
+		return
+	}
+
+	tpl.ExecuteTemplate(res, "base", data)
+}
+
+func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
+
+	data := app.newTemplateData()
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+	data.CurrentUser = currentUser
+	fmt.Println("Current user role: ", data.CurrentUser.Role)
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -224,7 +302,7 @@ func (app *application) showAppointmentsHandler(res http.ResponseWriter, req *ht
 	// 	app.serverError(res, err)
 	// }
 
-	err := tpl.ExecuteTemplate(res, "base", data)
+	err = tpl.ExecuteTemplate(res, "base", data)
 	if err != nil {
 		app.errorLog.Fatalln(err)
 	}
@@ -272,7 +350,12 @@ func (app *application) delAppointmentsHandler(res http.ResponseWriter, req *htt
 func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *http.Request) {
 
 	data := app.newTemplateData()
-	data.CurrentUser = app.getUserFromCookie(res, req)
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data.CurrentUser = currentUser
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -299,8 +382,14 @@ func (app *application) bookAppointmentsHandler(res http.ResponseWriter, req *ht
 }
 
 func (app *application) bookAppointmentsHandlerPut(res http.ResponseWriter, req *http.Request) {
+
 	data := app.newTemplateData()
-	data.CurrentUser = app.getUserFromCookie(res, req)
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data.CurrentUser = currentUser
 
 	req.ParseForm()
 	selected := req.Form["selectedAppts"]
@@ -352,7 +441,12 @@ func (app *application) showAllUsersHandler(res http.ResponseWriter, req *http.R
 	data.Users = allUsers
 
 	// get current user to perform authorisation to view user data
-	data.CurrentUser = app.getUserFromCookie(res, req)
+	currentUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data.CurrentUser = currentUser
 
 	files := []string{
 		"../../ui/base.gohtml",

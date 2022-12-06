@@ -19,6 +19,7 @@ func (app *application) routes() *chi.Mux {
 	// Load CSS file
 	fileServer := http.FileServer(http.Dir("../../ui/static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	r.Handle("/login/static/*", http.StripPrefix("/login/static/", fileServer))
 	r.Handle("/appts/static/*", http.StripPrefix("/appts/static/", fileServer))
 	r.Handle("/appts/delete/static/*", http.StripPrefix("/appts/delete/static/", fileServer))
 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileServer))
@@ -28,6 +29,8 @@ func (app *application) routes() *chi.Mux {
 	// auth
 	r.Get("/login", app.loginHandler)
 	r.Post("/login", app.loginHandler)
+	r.Get("/login/update", app.updateCredsHandler)
+	r.Post("/login/update", app.updateCredsHandler)
 	r.Get("/signup", app.signupHandler)
 	r.Post("/signup", app.signupHandler)
 	r.Get("/logout", app.logoutHandler)

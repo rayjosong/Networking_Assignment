@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"runtime/debug"
 
@@ -19,9 +18,18 @@ func convertToHash(object string) []byte {
 	return hashedValue
 }
 
-func (app *application) getUserFromCookie(res http.ResponseWriter, req *http.Request) models.User {
+func (app *application) getUserFromCookie(res http.ResponseWriter, req *http.Request) (models.User, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Trapped panic: %s (%T)\n", r, r)
+		}
+	}()
+
 	myCookie, err := req.Cookie("myCookie")
+	fmt.Println(myCookie.Value)
+
 	if err != nil {
+		app.errorLog.Println("Need to create new cookie lah.", err)
 		// create cookie
 		id, _ := uuid.NewV4()
 		myCookie = &http.Cookie{
@@ -31,19 +39,18 @@ func (app *application) getUserFromCookie(res http.ResponseWriter, req *http.Req
 		http.SetCookie(res, myCookie)
 	}
 
-	var myUser *models.User
+	var myUser models.User
 	// if user exists, get the user
 	if username, ok := mapSessions[myCookie.Value]; ok {
 		// retrieve user details from database
 		myUser, err = app.users.Get(username)
 		if err != nil {
-			log.Println(err)
-			return models.User{}
+			return myUser, err
 		}
-		return *myUser
+		return myUser, nil
 	}
 
-	return models.User{}
+	return models.User{}, err
 }
 
 func (app *application) alreadyLoggedIn(req *http.Request) bool {
@@ -53,11 +60,9 @@ func (app *application) alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 
-	username := mapSessions[myCookie.Value] // is this a valid session?
-	// _, ok := models.mapUsers[username]      // does this person exist?
-	_, err = app.users.Get(username)
+	_, ok := mapSessions[myCookie.Value] // is this a valid session?
 
-	return err == nil
+	return ok
 }
 
 // Writes error message and ends a generic 500 Internal Server Error response to the user

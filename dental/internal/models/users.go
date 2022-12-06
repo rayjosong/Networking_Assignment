@@ -26,24 +26,24 @@ type UserModel struct {
 // func (u *UserModel) CreateAdmin()
 
 // Retrieve one user given the username
-func (u *UserModel) Get(username string) (*User, error) {
+func (u *UserModel) Get(username string) (User, error) {
 	statement := `SELECT * FROM users WHERE username = ?`
 
 	// row is a pointer to sql.Row which holds result from the DB
 	row := u.DB.QueryRow(statement, username)
 
-	user := &User{}
+	user := User{}
 
 	err := row.Scan(&user.Uid, &user.Username, &user.Password, &user.FirstName, &user.LastName, &user.Role, &user.Created_at)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("the chosen user cannot be found")
-		} else {
-			return nil, err
-		}
+		return user, errors.New("the chosen user cannot be found")
 	}
 
+	if user.Username == "" {
+		return user, errors.New("cannot find user")
+	}
 	return user, nil
+
 }
 
 // Given the UID, obtain the User object
@@ -78,6 +78,25 @@ func (u *UserModel) Insert(username string, password []byte, firstname string, l
 	}
 
 	// get ID of newly inserted record
+	num, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(num), nil
+}
+
+func (u *UserModel) Update(uid int, username string, password []byte) (int, error) {
+	statement := `
+	UPDATE users
+	SET username = ?, password = ?
+	WHERE uid = ?`
+
+	result, err := u.DB.Exec(statement, username, password, uid)
+	if err != nil {
+		return 0, err
+	}
+
 	num, err := result.RowsAffected()
 	if err != nil {
 		return 0, err

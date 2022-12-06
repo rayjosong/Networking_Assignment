@@ -76,9 +76,15 @@ a:visited {
 }
 
 .bg-flowhite {
-  background: var(--flowhite);
+  background-color: var(--flowhite);
 }
 
 .bg-onyx {
-  background: var(--onyx);
+  background-color: var(--onyx);
+}
+
+/* button colours */
+
+.btn-maxyellow {
+  background-color: var(--maxyellow);
 }

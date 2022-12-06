@@ -1,7 +1,9 @@
 {{define "title"}}Book Appointments{{end}}
 
 {{define "main"}}
+
 <h2>Here are the available appointments for booking</h2>
+{{if eq .CurrentUser.Role "patient"}}
 <table class="table table-bordered table-dark">
   <thead>
     <tr>
@@ -24,7 +26,10 @@
         </tr>
         {{end}}
     </tbody>
-    <input type="submit">
+    <input class="mb-3 ml-1 btn-maxyellow" type="submit">
   </form>
 </table>
+{{else}}
+<h2>You are not logged in. You must <a href="/login">log in</a> to view appointments available for cooking</h2>
+{{end}}
 {{end}}
