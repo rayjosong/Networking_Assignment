@@ -6,7 +6,7 @@ COPY . .
 
 RUN go mod tidy
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o mainApp ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./cmd/api/mainApp ./cmd/api
 
 # RUN go run ./cmd/api/
-CMD [ "./mainApp" ]
+CMD [ "cmd/api/mainApp" ]
