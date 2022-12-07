@@ -19,14 +19,14 @@
         {{range .Appointments}}
         <tr>
           <td><input type="checkbox" name="selectedAppts" value="{{.Id}}"></td>
-          <td><a href="/appts/book/{{.Id}}">{{.Dentist}}</a></td>
+          <td>{{.Dentist}}</td>
           <td>{{formatDateTime .StartTime}}</td>
           <td>{{formatDateTime .EndTime}}</td>
           <td>{{.Completed}}</td>
         </tr>
         {{end}}
     </tbody>
-    <input class="mb-3 ml-1 btn-maxyellow" type="submit">
+    <input class="mb-3 ml-1 btn-maxyellow" type="submit" id="submit-btn">
   </form>
 </table>
 {{else}}

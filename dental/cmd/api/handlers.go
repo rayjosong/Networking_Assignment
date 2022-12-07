@@ -15,15 +15,29 @@ import (
 )
 
 func (app *application) homeHandler(res http.ResponseWriter, req *http.Request) {
-	data := app.newTemplateData()
+	// check if admin user existing in docker's mysql db
+	if _, err := app.users.Get("Admin"); err != nil {
+		// if not, create one
+		app.infoLog.Println("Need to create admin user")
+		username := "Admin"
+		bPassword := convertToHash("Password")
 
-	currentUser, err := app.getUserFromCookie(res, req)
-	if err != nil {
-		app.errorLog.Println(err)
-		return
+		_, err := app.users.Insert(username, bPassword, "Admin", "Admin", "admin")
+		if err != nil {
+			app.clientError(res, http.StatusBadRequest)
+			return
+		}
 	}
 
-	data.CurrentUser = currentUser
+	data := app.newTemplateData()
+
+	myUser, err := app.getUserFromCookie(res, req)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+
+	data.CurrentUser = myUser
+	fmt.Println(data.CurrentUser)
 
 	files := []string{
 		"../../ui/base.gohtml",
@@ -393,8 +407,6 @@ func (app *application) bookAppointmentsHandlerPut(res http.ResponseWriter, req 
 
 	req.ParseForm()
 	selected := req.Form["selectedAppts"]
-
-	fmt.Println(selected)
 
 	for _, num := range selected {
 		aID, err := strconv.Atoi(num)

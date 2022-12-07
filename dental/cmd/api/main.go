@@ -19,6 +19,8 @@ const (
 	port = ":5221"
 )
 
+var counts int64
+
 // contains services involved in this application
 type application struct {
 	users        *models.UserModel
@@ -33,21 +35,24 @@ var mapSessions = map[string]string{}
 
 func main() {
 	dsn := flag.String("dsn", "web:pass@/dental?parseTime=true", "MySQL data")
+	// Docker-compose options
+	// conn := connectToDB("root:password@tcp(localhost:3306)/dental")
+	// conn := connectToDB("root:root-secret@tcp(db:3306)/dental")
+	// conn := connectToDB("user:my-secret@tcp(db:3306)/dental")
 
 	infoLog := log.New(os.Stdout, color.New(color.BgHiGreen).Sprintf(" INFO \t"), log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, color.New(color.BgHiRed).Sprintf(" ERROR \t"), log.Ldate|log.Ltime|log.Lshortfile)
 
 	// mySQL connection
-	db, err := openDB(*dsn)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Println("mysql running")
+	fmt.Println("Connecting to mysql...")
+	conn := connectToDB(*dsn)
+	if conn == nil {
+		log.Panic("Can't connect to mySQL!")
 	}
-	defer db.Close()
+	defer conn.Close()
 
 	app := &application{
-		users:    &models.UserModel{DB: db},
+		users:    &models.UserModel{DB: conn},
 		infoLog:  infoLog,
 		errorLog: errorLog,
 	}
@@ -61,11 +66,32 @@ func main() {
 	}
 
 	infoLog.Printf("Starting server on %s", port)
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 
+func connectToDB(dsn string) *sql.DB {
+	for {
+		connection, err := openDB(dsn)
+		if err != nil {
+			log.Println("mySQL not yet ready...")
+			counts++
+		} else {
+			log.Println("Connected to mySQL!")
+			return connection
+		}
+
+		if counts > 10 {
+			log.Println(err)
+			return nil
+		}
+		log.Println("Backing off for two seconds...")
+		time.Sleep(2 * time.Second)
+	}
+}
+
 func openDB(dsn string) (*sql.DB, error) {
+
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err

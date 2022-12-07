@@ -88,3 +88,7 @@ a:visited {
 .btn-maxyellow {
   background-color: var(--maxyellow);
 }
+
+#submit-btn {
+  padding: 0.1rem;
+}

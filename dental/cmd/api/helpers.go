@@ -26,18 +26,16 @@ func (app *application) getUserFromCookie(res http.ResponseWriter, req *http.Req
 	}()
 
 	myCookie, err := req.Cookie("myCookie")
-	fmt.Println(myCookie.Value)
 
 	if err != nil {
-		app.errorLog.Println("Need to create new cookie lah.", err)
 		// create cookie
 		id, _ := uuid.NewV4()
 		myCookie = &http.Cookie{
 			Name:  "myCookie",
 			Value: id.String(),
 		}
-		http.SetCookie(res, myCookie)
 	}
+	http.SetCookie(res, myCookie)
 
 	var myUser models.User
 	// if user exists, get the user

@@ -17,8 +17,6 @@ type User struct {
 	Created_at time.Time `json:"createdAt"`
 }
 
-// var MapUsers = map[string]User{}
-
 type UserModel struct {
 	DB *sql.DB
 }

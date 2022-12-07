@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: "dental_db"
+    # platform: linux/x86_64
+    build:
+      context: ./internal/models
+      dockerfile: db.dockerfile
+    networks:
+      - dental-app-db-network
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root-secret
+      MYSQL_DATABASE: dental
+      MYSQL_USER: user
+      MYSQL_PASSWORD: my-secret
+      MYSQL_RANDOM_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mysql/:/var/lib/mysqlId.sock
+
+  api:
+    container_name: "dental_app"
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    ports:
+      - "5221:5221"
+    depends_on:
+      - db
+    # volumes:
+    #   - .:/app
+    networks:
+      - dental-app-db-network
+
+networks:
+  dental-app-db-network:
+    driver: bridge
+volumes:
+  db-data:
